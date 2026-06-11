@@ -43,7 +43,6 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v6
-        working-directory: ./src
         with:
           python-version: "3.12.4"
           cache: "pip"
