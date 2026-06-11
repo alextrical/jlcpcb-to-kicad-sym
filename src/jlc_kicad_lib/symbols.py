@@ -4,25 +4,23 @@ sys.path.append("kicad-library-utils/common")
 
 from kicad_sym import Pin, Polyline, Point, Arc, Rectangle
 
-
 def diode_pins():
     return [
-        Pin(name="K", number="1", etype="passive", posx=-3.81, posy=0, rotation=0, length=2.54),
-        Pin(name="A", number="2", etype="passive", posx=3.81, posy=0, rotation=180, length=2.54),
+        Pin(name="K", number="1", etype="passive", posx=-3.81, length=2.54),
+        Pin(name="A", number="2", etype="passive", posx=3.81, rotation=180, length=2.54),
     ]
-
 
 def diode_polylines():
     return [
         Polyline(points=[Point(x=-1.27, y=0), Point(x=1.27, y=0)], stroke_width=0),
-        Polyline(points=[Point(x=-1.27, y=-1.27), Point(x=-1.27, y=1.27)], stroke_width=0),
-        Polyline(points=[Point(x=1.27, y=-1.27), Point(x=1.27, y=1.27), Point(x=-1.27, y=0), Point(x=1.27, y=-1.27)], stroke_width=0),
+        Polyline(points=[Point(x=-1.27, y=-1.27), Point(x=-1.27, y=1.27)], stroke_width=0.254),
+        Polyline(points=[Point(x=1.27, y=-1.27), Point(x=1.27, y=1.27), Point(x=-1.27, y=0), Point(x=1.27, y=-1.27)], stroke_width=0.254),
     ]
 
 def resistor_pins():
     return [
-        Pin(name="", number="1", etype="passive", posx=0, posy=3.81, rotation=270, length=1.27),
-        Pin(name="", number="2", etype="passive", posx=0, posy=-3.81, rotation=90, length=1.27),
+        Pin(name="", number="1", etype="passive", posy=3.81, rotation=270, length=1.27),
+        Pin(name="", number="2", etype="passive", posy=-3.81, rotation=90, length=1.27),
     ]
 
 def resistor_rectangles():
@@ -32,8 +30,8 @@ def resistor_rectangles():
 
 def capacitor_pins():
     return [
-        Pin(name="~", number="1", etype="passive", posx=0, posy=3.81, rotation=270, length=2.794),
-        Pin(name="~", number="2", etype="passive", posx=0, posy=-3.81, rotation=90, length=2.794),
+        Pin(name="", number="1", etype="passive", posy=3.81, rotation=270, length=2.794),
+        Pin(name="", number="2", etype="passive", posy=-3.81, rotation=90, length=2.794),
     ]
 
 def capacitor_polylines():
@@ -44,8 +42,8 @@ def capacitor_polylines():
 
 def ferrite_bead_pins():
     return [
-        Pin(name="~", number="1", etype="passive", posx=0, posy=3.81, rotation=270, length=2.54),
-        Pin(name="~", number="2", etype="passive", posx=0, posy=-3.81, rotation=90, length=2.54),
+        Pin(name="", number="1", etype="passive", posy=3.81, rotation=270, length=2.54),
+        Pin(name="", number="2", etype="passive", posy=-3.81, rotation=90, length=2.54),
     ]
 
 def ferrite_bead_polylines():
@@ -70,22 +68,22 @@ def inductor_arcs():
 
 def inductor_pins():
     return [
-        Pin(name="~", number="1", etype="passive", posx=0, posy=3.81, rotation=270, length=2.54),
-        Pin(name="~", number="2", etype="passive", posx=0, posy=-3.81, rotation=90, length=2.54),
+        Pin(name="", number="1", etype="passive", posy=3.81, rotation=270, length=2.54),
+        Pin(name="", number="2", etype="passive", posy=-3.81, rotation=90, length=2.54),
     ]
 
 def diode_schottky_polylines():
     return [
     Polyline(points=[Point(x=-1.27, y=0), Point(x=1.27, y=0) ], stroke_width=0),
-    Polyline(points=[Point(x=-1.905, y=0.635), Point(x=-1.905, y=1.27), Point(x=-1.27, y=1.27), Point(x=-1.27, y=-1.27), Point(x=-0.635, y=-1.27), Point(x=-0.635, y=-0.635) ], stroke_width=0),
-    Polyline(points=[Point(x=1.27, y=-1.27), Point(x=1.27, y=1.27), Point(x=-1.27, y=0), Point(x=1.27, y=-1.27) ], stroke_width=0),
+    Polyline(points=[Point(x=-1.905, y=0.635), Point(x=-1.905, y=1.27), Point(x=-1.27, y=1.27), Point(x=-1.27, y=-1.27), Point(x=-0.635, y=-1.27), Point(x=-0.635, y=-0.635) ], stroke_width=0.254),
+    Polyline(points=[Point(x=1.27, y=-1.27), Point(x=1.27, y=1.27), Point(x=-1.27, y=0), Point(x=1.27, y=-1.27) ], stroke_width=0.254),
     ]
 
 def diode_zener_polylines():
     return [
     Polyline(points=[Point(x=-1.27, y=0), Point(x=1.27, y=0) ], stroke_width=0),
-    Polyline(points=[Point(x=-1.27, y=-1.27), Point(x=-1.27, y=1.27), Point(x=-0.762, y=1.27) ], stroke_width=0),
-    Polyline(points=[Point(x=1.27, y=-1.27), Point(x=1.27, y=1.27), Point(x=-1.27, y=0), Point(x=1.27, y=-1.27) ], stroke_width=0),
+    Polyline(points=[Point(x=-1.27, y=-1.27), Point(x=-1.27, y=1.27), Point(x=-0.762, y=1.27) ], stroke_width=0.254),
+    Polyline(points=[Point(x=1.27, y=-1.27), Point(x=1.27, y=1.27), Point(x=-1.27, y=0), Point(x=1.27, y=-1.27) ], stroke_width=0.254),
     ]
 
 # def ():
