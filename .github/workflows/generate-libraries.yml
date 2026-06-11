@@ -49,7 +49,11 @@ jobs:
           cache-dependency-path: src/kicad-library-utils/requirements.txt
 
       - name: Install Python dependencies
-        run: |
+      - run: |
+          pwd
+          ls -la
+          ls -la src
+          ls -la src/kicad-library-utils
           python -m pip install --upgrade pip
           python -m pip install -r src/kicad-library-utils/requirements.txt
 
