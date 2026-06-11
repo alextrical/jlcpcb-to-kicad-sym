@@ -64,4 +64,4 @@ jobs:
             exit 0
           fi
           git commit -m "Update generated KiCad libraries"
-          git push https://x-access-token:${{ secrets.LIBS_REPO_PAT }}@github.com/YOUR-USER-OR-ORG/YOUR-LIBRARIES-REPO.git HEAD:main
+          git push https://x-access-token:${{ secrets.LIBS_REPO_PAT }}@github.com/alextrical/kicad-jlcpcb-libraries.git HEAD:main
