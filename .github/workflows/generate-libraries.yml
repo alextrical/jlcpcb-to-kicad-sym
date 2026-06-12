@@ -164,7 +164,7 @@ jobs:
           release_tag="${year_month}.${date_part}v${patch}"
 
 
-          printf '%s\n' "$release_tag" > libraries/VERSION
+          printf '%s\n' "$release_tag" > VERSION
           git add manifest.json VERSION
           git commit -m "Update generated KiCad libraries"
           git push https://x-access-token:${{ secrets.LIBS_REPO_PAT }}@github.com/alextrical/kicad-jlcpcb-libraries.git HEAD:main
