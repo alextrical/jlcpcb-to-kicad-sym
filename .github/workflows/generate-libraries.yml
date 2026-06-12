@@ -130,8 +130,6 @@ jobs:
           }
           EOF
 
-          printf '%s\n' "${GITHUB_SHA}" > libraries/VERSION
-
       - name: Commit, push and release if symbols changed
         env:
           GH_TOKEN: ${{ secrets.LIBS_REPO_PAT }}
@@ -149,10 +147,6 @@ jobs:
             exit 0
           fi
 
-          git add manifest.json VERSION
-          git commit -m "Update generated KiCad libraries"
-          git push https://x-access-token:${{ secrets.LIBS_REPO_PAT }}@github.com/alextrical/kicad-jlcpcb-libraries.git HEAD:main
-
           # Get the latest version tag (e.g., 2026.01v1)
           latest_tag=$(gh release list --repo alextrical/kicad-jlcpcb-libraries | head -n1 | awk '{print $1}')
           
@@ -167,7 +161,13 @@ jobs:
           fi
           
           date_part=$(date -u +'%d')
-          release_tag="v${year_month}.${date_part}v${patch}"
+          release_tag="${year_month}.${date_part}v${patch}"
+
+
+          printf '%s\n' "$release_tag" > libraries/VERSION
+          git add manifest.json VERSION
+          git commit -m "Update generated KiCad libraries"
+          git push https://x-access-token:${{ secrets.LIBS_REPO_PAT }}@github.com/alextrical/kicad-jlcpcb-libraries.git HEAD:main
 
           gh release create "${release_tag}" \
             --repo alextrical/kicad-jlcpcb-libraries \
