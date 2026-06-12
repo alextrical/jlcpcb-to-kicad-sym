@@ -53,15 +53,53 @@ jobs:
           find libraries/symbols -type f -name '*.kicad_sym' -delete
           cp source/build/*.kicad_sym libraries/symbols/
 
-      - name: Commit and push if changed
+          sha256sum source/build/*.kicad_sym | sort -k2 > /tmp/symbols.sha256
+          generated_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          source_count="$(find source/build -maxdepth 1 -type f -name '*.kicad_sym' | wc -l | tr -d ' ')"
+
+          cat > libraries/manifest.json <<EOF
+          {
+            "generated_at": "${generated_at}",
+            "source": "source/build",
+            "destination": "libraries/symbols",
+            "file_count": ${source_count},
+            "files_sha256": [
+          $(awk 'BEGIN { first = 1 } { if (!first) printf ",\n"; first = 0; printf "      {\"file\": \"%s\", \"sha256\": \"%s\"}", $2, $1 }' /tmp/symbols.sha256)
+            ]
+          }
+          EOF
+
+          printf '%s\n' "${GITHUB_SHA}" > libraries/VERSION
+
+      - name: Commit and push if symbols changed
         working-directory: libraries
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
+
+          git add symbols
+
+          if git diff --cached --quiet -- symbols; then
+            echo "No changes in symbols; skipping commit"
+            git restore --staged manifest.json VERSION 2>/dev/null || true
+            rm -f manifest.json VERSION
             exit 0
           fi
+
+          git add manifest.json VERSION
           git commit -m "Update generated KiCad libraries"
           git push https://x-access-token:${{ secrets.LIBS_REPO_PAT }}@github.com/alextrical/kicad-jlcpcb-libraries.git HEAD:main
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "release_tag=$(date -u +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        if: steps.commit_symbols.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.LIBS_REPO_PAT }}
+        run: |
+          gh release create "${{ steps.commit_symbols.outputs.release_tag }}" \
+            --repo alextrical/kicad-jlcpcb-libraries \
+            --target main \
+            --title "${{ steps.commit_symbols.outputs.release_tag }}" \
+            --notes "Automated KiCad library release for ${{ steps.commit_symbols.outputs.release_tag }}"
