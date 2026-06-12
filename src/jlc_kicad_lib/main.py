@@ -79,7 +79,7 @@ LIBRARIES = [
         libname="JLCPCB_Basic_Resistor",
         package_source=resistor_packages,
         name_template="'_'.join(filter(None, [matches['resistance'], '{package_name}', matches['tolerance']]))",
-        value_template="re.sub(r'[^a-zA-Z0-9]', '', matches['resistance'])",
+        value_template="re.sub(r'[^a-zA-Z0-9.]', '', matches['resistance'])",
         reference="R",
         category_filter='"Category" = "Resistors" and "Subcategory" = "Chip Resistor - Surface Mount"',
         symbol_pins=resistor_pins(),
