@@ -2,6 +2,12 @@ name: Generate KiCad libraries
 
 on:
   workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Force the release workflow to run'
+        required: false
+        default: false
+        type: boolean
   schedule:
     - cron: "30 */1 * * *"   #At minute 30 past every hour.
   push:
@@ -67,20 +73,10 @@ jobs:
           path: .state
           key: jlcparts-state-${{ github.run_id }}
 
-      - name: Stop here if unchanged
-        if: steps.compare.outputs.changed != 'true'
-        run: echo "No change detected, skipping remaining work."
-
-      - name: Run your real job
-        if: steps.compare.outputs.changed == 'true'
-        run: |
-          echo "Detected change at ${{ steps.fetch.outputs.updated_at }}"
-          # put the expensive work here
-
   build-and-publish:
     runs-on: ubuntu-latest
     needs: check
-    if: ${{ needs.check.outputs.changed == 'true' }}
+    if: ${{ github.event.inputs.force_release == 'true' || needs.check.outputs.changed == 'true' }}
 
     permissions:
       contents: read
@@ -136,7 +132,9 @@ jobs:
 
           printf '%s\n' "${GITHUB_SHA}" > libraries/VERSION
 
-      - name: Commit and push if symbols changed
+      - name: Commit, push and release if symbols changed
+        env:
+          GH_TOKEN: ${{ secrets.LIBS_REPO_PAT }}
         working-directory: libraries
         run: |
           git config user.name "github-actions[bot]"
@@ -144,7 +142,7 @@ jobs:
 
           git add symbols
 
-          if git diff --cached --quiet -- symbols; then
+          if git diff --cached --quiet -- symbols && "$FORCE_RELEASE" != "true"; then
             echo "No changes in symbols; skipping commit"
             git restore --staged manifest.json VERSION 2>/dev/null || true
             rm -f manifest.json VERSION
@@ -155,16 +153,24 @@ jobs:
           git commit -m "Update generated KiCad libraries"
           git push https://x-access-token:${{ secrets.LIBS_REPO_PAT }}@github.com/alextrical/kicad-jlcpcb-libraries.git HEAD:main
 
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-          echo "release_tag=$(date -u +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+          # Get the latest version tag (e.g., 2026.01v1)
+          latest_tag=$(gh release list --repo alextrical/kicad-jlcpcb-libraries | head -n1 | awk '{print $1}')
+          
+          # Extract year and month from latest tag, or use current if none exists
+          if [ -z "$latest_tag" ]; then
+            year_month=$(date -u +'%Y.%m')
+            patch=1
+          else
+            year_month=$(echo "$latest_tag" | sed -n 's/v\([0-9]*\.[0-9]*\)/1/p')
+            patch=$(echo "$latest_tag" | sed -n 's/v[0-9]*\.[0-9]*\.[0-9]*$/1/p')
+            patch=$((patch + 1))
+          fi
+          
+          date_part=$(date -u +'%d')
+          release_tag="v${year_month}.${date_part}v${patch}"
 
-      - name: Create GitHub release
-        if: steps.commit_symbols.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.LIBS_REPO_PAT }}
-        run: |
-          gh release create "${{ steps.commit_symbols.outputs.release_tag }}" \
+          gh release create "${release_tag}" \
             --repo alextrical/kicad-jlcpcb-libraries \
             --target main \
-            --title "${{ steps.commit_symbols.outputs.release_tag }}" \
-            --notes "Automated KiCad library release for ${{ steps.commit_symbols.outputs.release_tag }}"
+            --title "${release_tag}" \
+            --notes "Automated KiCad library release for ${date_part}/${year_month} (patch ${patch})"
