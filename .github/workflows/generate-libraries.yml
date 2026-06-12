@@ -179,4 +179,4 @@ jobs:
             --repo alextrical/kicad-jlcpcb-libraries \
             --target main \
             --title "${release_tag}" \
-            --notes "Automated KiCad library release for ${date_part}/${year_month} (patch ${patch})"
+            --notes "Automated KiCad library release for current_date (patch ${patch})"
