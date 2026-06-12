@@ -147,21 +147,27 @@ jobs:
             exit 0
           fi
 
-          # Get the latest version tag (e.g., 2026.01v1)
+          # Get current date in YYYY.MM.DD format
+          current_date=$(date -u +'%Y.%m.%d')
+
+          # Get the latest version tag (e.g., 2026.01.01R1)
           latest_tag=$(gh release list --repo alextrical/kicad-jlcpcb-libraries | head -n1 | awk '{print $1}')
           
-          # Extract year and month from latest tag, or use current if none exists
-          if [ -z "$latest_tag" ]; then
-            year_month=$(date -u +'%Y.%m')
-            patch=1
+          if [[ -z "$latest_tag" ]] || [[ ! "$latest_tag" =~ ^([0-9]{4}\.[0-9]{2}\.[0-9]{2})R([0-9]+)$ ]]; then
+            # No previous tag: start with patch 0
+            patch=0
           else
-            year_month=$(echo "$latest_tag" | sed -n 's/v\([0-9]*\.[0-9]*\)/1/p')
-            patch=$(echo "$latest_tag" | sed -n 's/v[0-9]*\.[0-9]*\.[0-9]*$/1/p')
-            patch=$((patch + 1))
+            # Extract date and patch number from latest tag
+            latest_date=$(echo "$latest_tag"  | sed -E 's/([0-9]{4}\.[0-9]{2}\.[0-9]{2})R[0-9]+/\1/')
+            latest_patch=$(echo "$latest_tag" | sed -E 's/[0-9]{4}\.[0-9]{2}\.[0-9]{2}R([0-9]+)/\1/')
+            
+            if [ "$latest_date" == "$current_date" ]; then
+              # Same day: increment patch
+              patch=$((latest_patch + 1))
+            fi
           fi
-          
-          date_part=$(date -u +'%d')
-          release_tag="${year_month}.${date_part}v${patch}"
+
+          release_tag="${current_date}R${patch}"
 
 
           printf '%s\n' "$release_tag" > VERSION
