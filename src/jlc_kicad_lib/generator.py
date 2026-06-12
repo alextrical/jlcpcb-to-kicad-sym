@@ -44,11 +44,28 @@ SELECT
             CROSS JOIN (SELECT Description AS desc_col) AS t
         ) AS description_replacements
     ) AS description,
-    datasheet
+    datasheet,
+    stock,
+    price
 FROM jlc_components
 WHERE {where_clause}
 """
 
+def get_price(pricing_string, quantity):
+    tiers = pricing_string.split(",")
+
+    for tier in tiers:
+        range_part, pricing_part = tier.split(":")
+        pricing = float(pricing_part)
+
+        start, end = range_part.split("-")
+        start = int(start)
+        end = float("inf") if end == "" else int(end)
+
+        if start <= quantity <= end:
+            return pricing
+
+    raise ValueError(f"No pricing tier found for quantity {quantity}")
 
 def parse_matches(description: str, PATTERNS: dict):
     matches = {}
@@ -71,7 +88,7 @@ def append_parts(conn, lib, name_template, reference, footprint, libname,
     cursor = conn.cursor()
     cursor.execute(build_query(where_clause))
 
-    for lcsc_part, mfg_name, mfg_part, description, datasheet in cursor.fetchall():
+    for lcsc_part, mfg_name, mfg_part, description, datasheet, stock, price in cursor.fetchall():
         try:
             matches = parse_matches(description, PATTERNS)
             value = eval(value_template)
@@ -118,6 +135,10 @@ def append_parts(conn, lib, name_template, reference, footprint, libname,
         new_symbol.properties.append(Property("LCSC", lcsc_part, is_hidden=True))
         new_symbol.properties.append(Property("MFG", mfg_name, is_hidden=True))
         new_symbol.properties.append(Property("MFGPN", mfg_part, is_hidden=True))
+        new_symbol.properties.append(Property("Stock", str(stock), is_hidden=True))
+        new_symbol.properties.append(Property("Price@10", str(get_price(price, 10)), is_hidden=True))
+        new_symbol.properties.append(Property("Price@100", str(get_price(price, 100)), is_hidden=True))
+        new_symbol.properties.append(Property("Price@1000", str(get_price(price, 1000)), is_hidden=True))
 
         if hide_pin_numbers is not None:
             new_symbol.hide_pin_numbers = hide_pin_numbers
