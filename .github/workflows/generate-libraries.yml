@@ -22,6 +22,7 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
     outputs:
       changed: ${{ steps.compare.outputs.changed }}
       updated_at: ${{ steps.fetch.outputs.updated_at }}
