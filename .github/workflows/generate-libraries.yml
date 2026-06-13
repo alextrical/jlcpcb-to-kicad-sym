@@ -140,7 +140,7 @@ jobs:
 
           git add symbols
 
-          if git diff --cached --quiet -- symbols && "$FORCE_RELEASE" != "true"; then
+          if git diff --cached --quiet -- symbols; then
             echo "No changes in symbols; skipping commit"
             git restore --staged manifest.json VERSION 2>/dev/null || true
             rm -f manifest.json VERSION
