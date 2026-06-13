@@ -37,9 +37,9 @@ jobs:
         id: cache-restore
         with:
           path: .state
-          key: jlcparts-state-${{ github.run_id }}
+          key: jlcparts-state
           restore-keys: |
-            jlcparts-state-
+            jlcparts-state
 
       - name: Create state dir
         run: mkdir -p .state
@@ -76,7 +76,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: .state
-          key: jlcparts-state-${{ github.run_id }}
+          key: jlcparts-state
 
   build-and-publish:
     runs-on: ubuntu-latest
