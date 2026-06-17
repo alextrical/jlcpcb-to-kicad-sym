@@ -106,6 +106,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r source/src/kicad-library-utils/requirements.txt
+          python -m pip install sexpdata
 
       - name: Run generator
         working-directory: source
