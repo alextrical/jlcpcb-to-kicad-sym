@@ -160,7 +160,7 @@ def build_library(conn, spec: LibrarySpec) -> None:
                 kwargs["val_text_h_justify"] = value.get('justify')
             if spec.text_kwargs.get("val_text_rotation", None) is None:
                 kwargs["val_text_rotation"] = value.get('angle')
-                
+
         if spec.reference is not None:
             kwargs["reference"] = spec.reference
         else:
@@ -232,7 +232,7 @@ LIBRARIES = [
     LibrarySpec(
         libname="JLCPCB_Basic_LED",
         extends_symbol="Device.kicad_symdir/LED.kicad_sym",
-        package_source=diode_packages,
+        package_source=led_packages,
         name_template="'_'.join(filter(None, [matches['colour'], '{package_name}', matches['current'], matches['brightness']]))",
         value_template="matches['colour']",
         category_filter='category="Optoelectronics" and "Subcategory"="LED Indication - Discrete"',
