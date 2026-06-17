@@ -75,12 +75,12 @@ def parse_matches(description: str, PATTERNS: dict):
     return matches
 
 
-def append_parts(conn, name_template, reference, footprint, libname,
-                 where_clause, symbol_pins, output_dir, ref_text_posx=None, ref_text_posy=None,
+def append_parts(conn, name_template, footprint, libname,
+                 where_clause, symbol_pins, output_dir, reference=None, ref_text_posx=None, ref_text_posy=None,
                  val_text_posx=None, val_text_posy=None, ref_text_rotation=None,
                  val_text_rotation=None, value_template=None,
                  symbol_rectangles=None, symbol_polylines=None,
-                 symbol_arcs=None, keywords=None, fp_filters=None,
+                 symbol_arcs=None, keywords="", fp_filters="",
                  ref_text_h_justify=None,ref_text_v_justify=None,
                  val_text_h_justify=None,val_text_v_justify=None,
                  hide_pin_numbers=None,hide_pin_names=None,
@@ -105,7 +105,7 @@ def append_parts(conn, name_template, reference, footprint, libname,
 
         clean_description = re.sub(r'[^-A-Za-z 0-9%()℃~+-,±@Ω/\\.]', '', description.strip())
         new_symbol = KicadSymbol.new(
-            name, libname, reference, footprint, datasheet, keywords, clean_description, fp_filters
+            name, libname, footprint, datasheet, keywords, clean_description, fp_filters
         )
         lib.symbols.append(new_symbol)
         new_symbol.add_default_properties()
@@ -114,6 +114,10 @@ def append_parts(conn, name_template, reference, footprint, libname,
             new_symbol.extends = extends_symbol_name
 
         ref = new_symbol.get_property("Reference")
+        if reference is not None:
+            ref.value = reference
+        else:
+            ref.value = "U"
         if ref_text_posx is not None:
             ref.posx = ref_text_posx
         if ref_text_posy is not None:
