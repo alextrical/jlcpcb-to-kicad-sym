@@ -1,3 +1,6 @@
 [submodule "src/kicad-library-utils"]
 	path = src/kicad-library-utils
 	url = https://gitlab.com/kicad/libraries/kicad-library-utils
+[submodule "src/kicad-symbols"]
+	path = src/kicad-symbols
+	url = https://gitlab.com/kicad/libraries/kicad-symbols
