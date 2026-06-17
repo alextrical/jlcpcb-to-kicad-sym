@@ -1,32 +1,63 @@
 #!/usr/bin/env python3
 
+import sexpdata
+
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
 from generator import append_parts, create_connection, create_library
 from symbols import *
 from footprint_packages import *
+from pathlib import Path
+import shutil
 
 
 BASE_FILTER = '(library_type = "base" OR preferred = 1)'
+OUTPUT_DIR = Path("build")
 
 
 @dataclass(frozen=True)
 class LibrarySpec:
     libname: str
+    extends_symbol: str
     package_source: Callable
     name_template: str
     value_template: str
-    reference: str
     category_filter: str
-    symbol_pins: object
+    reference: Optional[str] = None
+    symbol_pins: Optional[object] = None
     symbol_polylines: Optional[object] = None
     symbol_rectangles: Optional[object] = None
     text_kwargs: dict = field(default_factory=dict)
 
 
 def build_library(conn, spec: LibrarySpec) -> None:
-    # lib = create_library(spec.libname)
+    source_file = Path("../kicad-symbols") / spec.extends_symbol
+    output_dir = Path(OUTPUT_DIR) / f"{spec.libname}.kicad_symdir"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy(source_file, output_dir)
+
+    # with open(source_file, "r") as f:
+    #     content = f.read()
+    # match = re.search(r'\(symbol\s+"([^"]+)"', content)
+    # if match:
+    #     extends_symbol_name = match.group(1)
+
+    with open(source_file, "r") as f:
+        data = sexpdata.load(f)
+
+    # Find the symbol name
+    def find_symbol_name(tree):
+        for item in tree:
+            if isinstance(item, sexpdata.Symbol) and item.value() == "symbol":
+                # Next element should be the symbol name string
+                for elem in item._value:
+                    if isinstance(elem, sexpdata.String):
+                        return elem.value()
+        return None
+
+    extends_symbol_name = find_symbol_name(data)
+
 
     for package_name, footprint_name, package_match in spec.package_source():
         where_clause = (
@@ -43,8 +74,10 @@ def build_library(conn, spec: LibrarySpec) -> None:
             reference=spec.reference,
             footprint=footprint_name,
             libname=spec.libname,
+            output_dir=output_dir,
             where_clause=where_clause,
             symbol_pins=spec.symbol_pins,
+            extends_symbol_name=extends_symbol_name,
             **spec.text_kwargs,
         )
 
@@ -175,22 +208,22 @@ LIBRARIES = [
     # ),
     LibrarySpec(
         libname="JLCPCB_Basic_Diode-Schottky",
-        # extends="Device.kicad_symdir/D_Schottky.kicad_sym",
+        extends_symbol="Device.kicad_symdir/D_Schottky.kicad_sym",
         package_source=diode_packages,
         name_template="mfg_part",
         value_template="mfg_part",
-        reference="D",
+        # reference="D",
         category_filter='category="Diodes" and "Subcategory"="Schottky Diodes"',
-        symbol_pins=diode_pins(),
-        symbol_polylines=diode_schottky_polylines(),
-        text_kwargs={
-            "ref_text_posy": 2.54, 
-            "val_text_posy": -2.54,
-            "keywords": "diode Schottky",
-            "fp_filters": "TO-???* *_Diode_* *SingleDiode* D_*",
-            "hide_pin_numbers": True,
-            "hide_pin_names": True,
-        },
+        # symbol_pins=diode_pins(),
+        # symbol_polylines=diode_schottky_polylines(),
+        # text_kwargs={
+        #     "ref_text_posy": 2.54, 
+        #     "val_text_posy": -2.54,
+        #     "keywords": "diode Schottky",
+        #     "fp_filters": "TO-???* *_Diode_* *SingleDiode* D_*",
+        #     "hide_pin_numbers": True,
+        #     "hide_pin_names": True,
+        # },
     ),
 ]
 

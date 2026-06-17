@@ -76,15 +76,15 @@ def parse_matches(description: str, PATTERNS: dict):
 
 
 def append_parts(conn, name_template, reference, footprint, libname,
-                 where_clause, symbol_pins, ref_text_posx=None, ref_text_posy=None,
+                 where_clause, symbol_pins, output_dir, ref_text_posx=None, ref_text_posy=None,
                  val_text_posx=None, val_text_posy=None, ref_text_rotation=None,
                  val_text_rotation=None, value_template=None,
                  symbol_rectangles=None, symbol_polylines=None,
-                 symbol_arcs=None, keywords="", fp_filters="",
+                 symbol_arcs=None, keywords=None, fp_filters=None,
                  ref_text_h_justify=None,ref_text_v_justify=None,
                  val_text_h_justify=None,val_text_v_justify=None,
                  hide_pin_numbers=None,hide_pin_names=None,
-                 pin_names_offset=None):
+                 pin_names_offset=None, extends_symbol_name=None):
     cursor = conn.cursor()
     cursor.execute(build_query(where_clause))
 
@@ -100,8 +100,6 @@ def append_parts(conn, name_template, reference, footprint, libname,
             print(f"Can't parse, skipping {lcsc_part} {description!r}")
             continue
 
-        output_dir = Path(OUTPUT_DIR) / f"{libname}.kicad_symdir"
-        output_dir.mkdir(parents=True, exist_ok=True)
         safe_name = re.sub(r'[\\/:*?"<>|]+', '_', name).strip(" .")
         lib = create_library(safe_name,output_dir)
 
@@ -111,6 +109,9 @@ def append_parts(conn, name_template, reference, footprint, libname,
         )
         lib.symbols.append(new_symbol)
         new_symbol.add_default_properties()
+
+        if extends_symbol_name is not None:
+            new_symbol.extends = extends_symbol_name
 
         ref = new_symbol.get_property("Reference")
         if ref_text_posx is not None:
@@ -152,7 +153,7 @@ def append_parts(conn, name_template, reference, footprint, libname,
         if hide_pin_names is not None:
             new_symbol.hide_pin_names = hide_pin_names
 
-        for pin in symbol_pins:
+        for pin in symbol_pins or []:
             new_symbol.pins.append(pin)
         for rectangle in symbol_rectangles or []:
             new_symbol.rectangles.append(rectangle)

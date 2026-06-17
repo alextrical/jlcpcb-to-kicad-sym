@@ -12,3 +12,4 @@ done
 7z x cache/cache.zip -ocache/ -aoa
 
 python3 src/jlc_kicad_lib/main.py
+python3 src/kicad-symbols/tools/kicad_lib_pack.py -i build -o output
