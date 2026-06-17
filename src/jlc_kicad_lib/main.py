@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# import re
 import sexpdata
 
 from dataclasses import dataclass, field
@@ -140,11 +139,6 @@ def build_library(conn, spec: LibrarySpec) -> None:
             **spec.text_kwargs,
         )
 
-    #         "val_text_h_justify": "left",
-    #         "ref_text_h_justify": "left",
-    #         "hide_pin_numbers": True,
-    #         "hide_pin_names": True,
-
         if spec.extends_symbol is not None:
             kwargs["extends_symbol_name"] = extends_symbol_name
 
@@ -166,10 +160,7 @@ def build_library(conn, spec: LibrarySpec) -> None:
                 kwargs["val_text_h_justify"] = value.get('justify')
             if spec.text_kwargs.get("val_text_rotation", None) is None:
                 kwargs["val_text_rotation"] = value.get('angle')
-
-        print(reference.get('justify'))
-        print(value.get('justify'))
-
+                
         if spec.reference is not None:
             kwargs["reference"] = spec.reference
         else:
@@ -190,147 +181,78 @@ def build_library(conn, spec: LibrarySpec) -> None:
 
 
 LIBRARIES = [
-    # LibrarySpec(
-    #     libname="JLCPCB_Basic_Diode-General",
-    #     extends_symbol="Device.kicad_symdir/D.kicad_sym",
-    #     package_source=diode_packages,
-    #     name_template="mfg_part",
-    #     value_template="mfg_part",
-    #     # reference="D",
-    #     category_filter='category="Diodes" and "Subcategory"="Diodes - General Purpose"',
-    #     # symbol_pins=diode_pins(),
-    #     # symbol_polylines=diode_polylines(),
-    #     # text_kwargs={
-    #     #     "ref_text_posy": 2.54, 
-    #     #     "val_text_posy": -2.54,
-    #     #     "keywords": "diode",
-    #     #     "fp_filters": "TO-???* *_Diode_* *SingleDiode* D_*",
-    #     #     "hide_pin_numbers": True,
-    #     #     "hide_pin_names": True,
-    #     # },
-    # ),
-    # LibrarySpec(
-    #     libname="JLCPCB_Basic_Resistor",
-    #     extends_symbol="Device.kicad_symdir/R.kicad_sym",
-    #     package_source=resistor_packages,
-    #     name_template="'_'.join(filter(None, [matches['resistance'], '{package_name}', matches['tolerance']]))",
-    #     value_template="re.sub(r'[^a-zA-Z0-9.]', '', matches['resistance'])",
-    #     # reference="R",
-    #     category_filter='"Category" = "Resistors" and "Subcategory" = "Chip Resistor - Surface Mount"',
-    #     # symbol_pins=resistor_pins(),
-    #     # symbol_rectangles=resistor_rectangles(),
-    #     # text_kwargs={
-    #     #     "ref_text_posx": 2.032,
-    #     #     "ref_text_rotation": 90,
-    #     #     "val_text_rotation": 90,
-    #     #     "keywords": "R res resistor",
-    #     #     "fp_filters": "R_*",
-    #     #     "hide_pin_numbers": True,
-    #     #     "hide_pin_names": True,
-    #     # },
-    # ),
+    LibrarySpec(
+        libname="JLCPCB_Basic_Diode-General",
+        extends_symbol="Device.kicad_symdir/D.kicad_sym",
+        package_source=diode_packages,
+        name_template="mfg_part",
+        value_template="mfg_part",
+        category_filter='category="Diodes" and "Subcategory"="Diodes - General Purpose"',
+    ),
+    LibrarySpec(
+        libname="JLCPCB_Basic_Resistor",
+        extends_symbol="Device.kicad_symdir/R.kicad_sym",
+        package_source=resistor_packages,
+        name_template="'_'.join(filter(None, [matches['resistance'], '{package_name}', matches['tolerance']]))",
+        value_template="re.sub(r'[^a-zA-Z0-9.]', '', matches['resistance'])",
+        category_filter='"Category" = "Resistors" and "Subcategory" = "Chip Resistor - Surface Mount"',
+    ),
     LibrarySpec(
         libname="JLCPCB_Basic_Capacitor",
         extends_symbol="Device.kicad_symdir/C.kicad_sym",
         package_source=capacitor_packages,
         name_template="'_'.join(filter(None, [matches['capacitance'], '{package_name}', matches['voltage'], matches['dielectric'], matches['tolerance']]))",
         value_template="matches['capacitance']",
-        # reference="C",
         category_filter='"Category" = "Capacitors" and "Subcategory" = "Multilayer Ceramic Capacitors MLCC - SMD/SMT"',
-        # symbol_pins=capacitor_pins(),
-        # symbol_rectangles=capacitor_polylines(),
+    ),
+    LibrarySpec(
+        libname="JLCPCB_Basic_FerriteBead",
+        extends_symbol="Device.kicad_symdir/FerriteBead.kicad_sym",
+        package_source=ferritebead_packages,
+        name_template="'_'.join(filter(None, [matches['impedance'] + '@' + matches['frequency'], '{package_name}', matches['current'], matches['tolerance']]))",
+        value_template="matches['impedance'] + '@' + matches['frequency']",
+        # reference="FB",
+        category_filter='"Subcategory" LIKE "Ferrite Beads"',
+        # symbol_pins=ferrite_bead_pins(),
+        # symbol_polylines=ferrite_bead_polylines(),
         # text_kwargs={
-        # #     "ref_text_posx": 0.635,
-        # #     "val_text_posx": 0.635,
-        # #     "ref_text_posy": 2.54,
-        # #     "val_text_posy": -2.54,
+        #     "ref_text_posx": -3.81,
+        #     "ref_text_posy": 0.635,
+        #     "ref_text_rotation": 90,
+        #     "val_text_posx": 3.81,
+        #     "val_text_rotation": 90,
         #     "val_text_h_justify": "left",
         #     "ref_text_h_justify": "left",
-        # #     "keywords": "cap capacitor",
-        # #     "fp_filters": "C_",
-        # #     "hide_pin_numbers": True,
-        # #     "hide_pin_names": True,
+        #     "keywords": "L ferrite bead inductor filter",
+        #     "fp_filters": "Inductor_* L_* *Ferrite*",
+        #     "hide_pin_numbers": True,
+        #     "hide_pin_names": True,
         # },
     ),
-    # LibrarySpec(
-    #     libname="JLCPCB_Basic_FerriteBead",
-    #     extends_symbol="Device.kicad_symdir/FerriteBead.kicad_sym",
-    #     package_source=ferritebead_packages,
-    #     name_template="'_'.join(filter(None, [matches['impedance'] + '@' + matches['frequency'], '{package_name}', matches['current'], matches['tolerance']]))",
-    #     value_template="matches['impedance'] + '@' + matches['frequency']",
-    #     # reference="FB",
-    #     category_filter='"Subcategory" LIKE "Ferrite Beads"',
-    #     # symbol_pins=ferrite_bead_pins(),
-    #     # symbol_polylines=ferrite_bead_polylines(),
-    #     # text_kwargs={
-    #     #     "ref_text_posx": -3.81,
-    #     #     "ref_text_posy": 0.635,
-    #     #     "ref_text_rotation": 90,
-    #     #     "val_text_posx": 3.81,
-    #     #     "val_text_rotation": 90,
-    #     #     "keywords": "L ferrite bead inductor filter",
-    #     #     "fp_filters": "Inductor_* L_* *Ferrite*",
-    #     #     "hide_pin_numbers": True,
-    #     #     "hide_pin_names": True,
-    #     # },
-    # ),
-    # LibrarySpec(
-    #     libname="JLCPCB_Basic_LED",
-    #     extends_symbol="Device.kicad_symdir/LED.kicad_sym",
-    #     package_source=diode_packages,
-    #     name_template="'_'.join(filter(None, [matches['colour'], '{package_name}', matches['current'], matches['brightness']]))",
-    #     value_template="matches['colour']",
-    #     # reference="D",
-    #     category_filter='category="Optoelectronics" and "Subcategory"="LED Indication - Discrete"',
-    #     # symbol_pins=diode_pins(),
-    #     # symbol_polylines=led_polylines(),
-    #     # text_kwargs={
-    #     #     "ref_text_posy": 2.54, 
-    #     #     "val_text_posy": -2.54,
-    #     #     "keywords": "LED diode",
-    #     #     "fp_filters": "LED* LED_SMD:* LED_THT:*",
-    #     #     "hide_pin_numbers": True,
-    #     #     "hide_pin_names": True,
-    #     # },
-    # ),
-    # LibrarySpec(
-    #     libname="JLCPCB_Basic_Diode-Zener",
-    #     extends_symbol="Device.kicad_symdir/D_Zener.kicad_sym",
-    #     package_source=diode_packages,
-    #     name_template="mfg_part",
-    #     value_template="mfg_part",
-    #     # reference="D",
-    #     category_filter='category="Diodes" and "Subcategory"="Zener Diodes"',
-    #     # symbol_pins=diode_pins(),
-    #     # symbol_polylines=diode_zener_polylines(),
-    #     # text_kwargs={
-    #     #     "ref_text_posy": 2.54, 
-    #     #     "val_text_posy": -2.54,
-    #     #     "keywords": "diode Zener",
-    #     #     "fp_filters": "TO-???* *_Diode_* *SingleDiode* D_*",
-    #     #     "hide_pin_numbers": True,
-    #     #     "hide_pin_names": True,
-    #     # },
-    # ),
-    # LibrarySpec(
-    #     libname="JLCPCB_Basic_Diode-Schottky",
-    #     extends_symbol="Device.kicad_symdir/D_Schottky.kicad_sym",
-    #     package_source=diode_packages,
-    #     name_template="mfg_part",
-    #     value_template="mfg_part",
-    #     # reference="D",
-    #     category_filter='category="Diodes" and "Subcategory"="Schottky Diodes"',
-    #     # symbol_pins=diode_pins(),
-    #     # symbol_polylines=diode_schottky_polylines(),
-    #     # text_kwargs={
-    #     #     "ref_text_posy": 2.54, 
-    #     #     "val_text_posy": -2.54,
-    #     #     "keywords": "diode Schottky",
-    #     #     "fp_filters": "TO-???* *_Diode_* *SingleDiode* D_*",
-    #     #     "hide_pin_numbers": True,
-    #     #     "hide_pin_names": True,
-    #     # },
-    # ),
+    LibrarySpec(
+        libname="JLCPCB_Basic_LED",
+        extends_symbol="Device.kicad_symdir/LED.kicad_sym",
+        package_source=diode_packages,
+        name_template="'_'.join(filter(None, [matches['colour'], '{package_name}', matches['current'], matches['brightness']]))",
+        value_template="matches['colour']",
+        category_filter='category="Optoelectronics" and "Subcategory"="LED Indication - Discrete"',
+    ),
+    LibrarySpec(
+        libname="JLCPCB_Basic_Diode-Zener",
+        extends_symbol="Device.kicad_symdir/D_Zener.kicad_sym",
+        package_source=diode_packages,
+        name_template="mfg_part",
+        value_template="mfg_part",
+        category_filter='category="Diodes" and "Subcategory"="Zener Diodes"',
+    ),
+    LibrarySpec(
+        libname="JLCPCB_Basic_Diode-Schottky",
+        extends_symbol="Device.kicad_symdir/D_Schottky.kicad_sym",
+        package_source=diode_packages,
+        name_template="mfg_part",
+        value_template="mfg_part",
+        category_filter='category="Diodes" and "Subcategory"="Schottky Diodes"',
+    ),
 ]
 
 

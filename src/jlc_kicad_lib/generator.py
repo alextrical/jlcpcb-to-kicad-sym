@@ -104,9 +104,6 @@ def append_parts(conn, name_template, footprint, libname,
         lib = create_library(safe_name,output_dir)
 
         clean_description = re.sub(r'[^-A-Za-z 0-9%()℃~+-,±@Ω/\\.]', '', description.strip())
-        # new_symbol = KicadSymbol.new(
-        #     name, libname, footprint, datasheet, keywords, clean_description, fp_filters
-        # )
         new_symbol = KicadSymbol.new(
             name=name,
             libname=libname,
@@ -125,8 +122,6 @@ def append_parts(conn, name_template, footprint, libname,
         ref = new_symbol.get_property("Reference")
         if reference is not None:
             ref.value = reference
-        else:
-            ref.value = "U"
         if ref_text_posx is not None:
             ref.posx = ref_text_posx
         if ref_text_posy is not None:
