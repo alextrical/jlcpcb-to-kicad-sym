@@ -75,7 +75,7 @@ def parse_matches(description: str, PATTERNS: dict):
     return matches
 
 
-def append_parts(conn, lib, name_template, reference, footprint, libname,
+def append_parts(conn, name_template, reference, footprint, libname,
                  where_clause, symbol_pins, ref_text_posx=None, ref_text_posy=None,
                  val_text_posx=None, val_text_posy=None, ref_text_rotation=None,
                  val_text_rotation=None, value_template=None,
@@ -99,6 +99,11 @@ def append_parts(conn, lib, name_template, reference, footprint, libname,
         except Exception:
             print(f"Can't parse, skipping {lcsc_part} {description!r}")
             continue
+
+        output_dir = Path(OUTPUT_DIR) / f"{libname}.kicad_symdir"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        safe_name = re.sub(r'[\\/:*?"<>|]+', '_', name).strip(" .")
+        lib = create_library(safe_name,output_dir)
 
         clean_description = re.sub(r'[^-A-Za-z 0-9%()℃~+-,±@Ω/\\.]', '', description.strip())
         new_symbol = KicadSymbol.new(
@@ -156,4 +161,4 @@ def append_parts(conn, lib, name_template, reference, footprint, libname,
         for arc in symbol_arcs or []:
             new_symbol.arcs.append(arc)
 
-    lib.write()
+        lib.write()
