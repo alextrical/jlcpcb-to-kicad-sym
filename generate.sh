@@ -12,4 +12,5 @@ done
 7z x cache/cache.zip -ocache/ -aoa
 
 python3 src/jlc_kicad_lib/main.py
+perl -i -0777 -pe 's/\(justify\s*\n\s*\(\s*(\w+)\s*\)\s*\n\s*\)/(justify $1)/g' build/*/*.kicad_sym
 python3 src/kicad-symbols/tools/kicad_lib_pack.py -i build -o output

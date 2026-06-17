@@ -104,8 +104,17 @@ def append_parts(conn, name_template, footprint, libname,
         lib = create_library(safe_name,output_dir)
 
         clean_description = re.sub(r'[^-A-Za-z 0-9%()℃~+-,±@Ω/\\.]', '', description.strip())
+        # new_symbol = KicadSymbol.new(
+        #     name, libname, footprint, datasheet, keywords, clean_description, fp_filters
+        # )
         new_symbol = KicadSymbol.new(
-            name, libname, footprint, datasheet, keywords, clean_description, fp_filters
+            name=name,
+            libname=libname,
+            footprint=footprint,
+            datasheet=datasheet,
+            keywords=keywords,
+            description=clean_description,
+            fp_filters=fp_filters,
         )
         lib.symbols.append(new_symbol)
         new_symbol.add_default_properties()
