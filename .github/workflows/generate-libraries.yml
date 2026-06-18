@@ -118,7 +118,7 @@ jobs:
         run: |
           mkdir -p libraries/symbols
           find libraries/symbols -type f -name '*.kicad_sym' -delete
-          cp source/build/*.kicad_sym libraries/symbols/
+          cp source/output/*.kicad_sym libraries/symbols/
 
           sha256sum source/build/*.kicad_sym | sort -k2 > /tmp/symbols.sha256
           generated_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
