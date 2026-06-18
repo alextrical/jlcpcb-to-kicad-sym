@@ -49,3 +49,12 @@ def led_packages():
     ('0805', 'LED_SMD:LED_0805_2012Metric', 'like "%805"'),
     ('1206', 'LED_SMD:LED_1206_3216Metric', 'like "%1206"'),
 ]
+
+def transistor_packages():
+    return [
+    ('SOT-23', 'Package_TO_SOT_SMD:SOT-23', '= "SOT-23"'),
+    ('SOT-323', 'Package_TO_SOT_SMD:SOT-323_SC-70', '= "SOT-323"'),
+    ('SOT-223', 'Package_TO_SOT_SMD:SOT-223-3_TabPin2', '= "SOT-223"'),
+    ('SOT-89-3', 'Package_TO_SOT_SMD:SOT-89-3', '= "SOT-89-3L"'),
+    ('SOT-89-3', 'Package_TO_SOT_SMD:SOT-89-3', '= "SOT-89"'),
+]
