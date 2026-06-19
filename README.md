@@ -53,8 +53,7 @@ This scaffold supports a small first-pass set of atomic symbols:
 The next milestone should add:
 
 1. Better package normalization.
-2. Pin-map templates for multi pin diodes and transistors.
-3. Snapshot tests for generated `.kicad_sym` output.
+2. Snapshot tests for generated `.kicad_sym` output.
 
 ## Development
 
