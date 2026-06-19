@@ -76,7 +76,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: .state
-          key: jlcparts-state
+          key: jlcparts-state-${{ github.run_id }}
 
   build-and-publish:
     runs-on: ubuntu-latest
