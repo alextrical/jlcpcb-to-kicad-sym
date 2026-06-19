@@ -118,16 +118,16 @@ jobs:
         run: |
           mkdir -p libraries/symbols
           find libraries/symbols -type f -name '*.kicad_sym' -delete
-          cp source/build/*.kicad_sym libraries/symbols/
+          cp source/output/*.kicad_sym libraries/symbols/
 
-          sha256sum source/build/*.kicad_sym | sort -k2 > /tmp/symbols.sha256
+          sha256sum source/output/*.kicad_sym | sort -k2 > /tmp/symbols.sha256
           generated_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          source_count="$(find source/build -maxdepth 1 -type f -name '*.kicad_sym' | wc -l | tr -d ' ')"
+          source_count="$(find source/output -maxdepth 1 -type f -name '*.kicad_sym' | wc -l | tr -d ' ')"
 
           cat > libraries/manifest.json <<EOF
           {
             "generated_at": "${generated_at}",
-            "source": "source/build",
+            "source": "source/output",
             "destination": "libraries/symbols",
             "file_count": ${source_count},
             "files_sha256": [
@@ -160,18 +160,28 @@ jobs:
           latest_tag=$(gh release list --repo alextrical/kicad-jlcpcb-libraries | head -n1 | awk '{print $1}')
           
           if [[ -z "$latest_tag" ]] || [[ ! "$latest_tag" =~ ^([0-9]{4}\.[0-9]{2}\.[0-9]{2})R([0-9]+)$ ]]; then
+            echo "DEBUG: latest_tag missing or invalid format, defaulting patch=0"
             # No previous tag: start with patch 0
             patch=0
           else
             # Extract date and patch number from latest tag
             latest_date=$(echo "$latest_tag"  | sed -E 's/([0-9]{4}\.[0-9]{2}\.[0-9]{2})R[0-9]+/\1/')
             latest_patch=$(echo "$latest_tag" | sed -E 's/[0-9]{4}\.[0-9]{2}\.[0-9]{2}R([0-9]+)/\1/')
+
+            echo "DEBUG: latest_date='$latest_date'"
+            echo "DEBUG: latest_patch='$latest_patch'"
             
             if [ "$latest_date" == "$current_date" ]; then
+              echo "DEBUG: same date, incrementing patch"
               # Same day: increment patch
               patch=$((latest_patch + 1))
+            else
+              echo "DEBUG: different date, patch remains default/new-day value"
+              patch=0
             fi
           fi
+
+          echo "DEBUG: final patch='$patch'"
 
           release_tag="${current_date}R${patch}"
 
